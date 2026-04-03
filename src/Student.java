@@ -13,16 +13,15 @@ import java.util.HashMap;
  * academic record.</p>
  */
 public class Student {
+    /**
+     * Unique identifier assigned to the student.
+     */
+    private int id;
 
     /**
      * The student's full name.
      */
     private String name;
-
-    /**
-     * Unique identifier assigned to the student.
-     */
-    private int id;
 
     /**
      * Stores the student's grades per subject.
@@ -35,22 +34,13 @@ public class Student {
      * Constructs a new Student with the given name and ID.
      * Initializes an empty collection for subject grades.
      *
-     * @param name the student's name
      * @param id   the student's unique identifier
+     * @param name the student's name
      */
-    public Student(String name, int id) {
-        this.name = name;
+    public Student(int id, String name) {
         this.id = id;
+        this.name = name;
         subjectGrades = new HashMap<>();
-    }
-
-    /**
-     * Returns the student's name.
-     *
-     * @return the name of the student
-     */
-    public String getName() {
-        return name;
     }
 
     /**
@@ -60,6 +50,15 @@ public class Student {
      */
     public int getId() {
         return id;
+    }
+
+    /**
+     * Returns the student's name.
+     *
+     * @return the name of the student
+     */
+    public String getName() {
+        return name;
     }
 
     /**
