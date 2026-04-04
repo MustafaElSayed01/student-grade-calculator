@@ -4,6 +4,7 @@
 // TODO: implement menu loop — show options, read choice, call correct method
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -52,9 +53,7 @@ public class Main {
 
         for (String word : words) {
             if (!word.isEmpty()) {
-                result.append(word.substring(0, 1).toUpperCase())
-                        .append(word.substring(1).toLowerCase())
-                        .append(" ");
+                result.append(word.substring(0, 1).toUpperCase()).append(word.substring(1).toLowerCase()).append(" ");
             }
         }
 
@@ -69,9 +68,7 @@ public class Main {
      * otherwise an empty Optional
      */
     static Optional<Student> findStudentById(int id) {
-        return studentRegistry.stream()
-                .filter(s -> s.getId() == id)
-                .findFirst();
+        return studentRegistry.stream().filter(s -> s.getId() == id).findFirst();
     }
 
     /**
@@ -200,17 +197,54 @@ public class Main {
     }
 
     /**
-     * Displays the academic report for a specific student.
+     * Generates a detailed academic report for a specific student.
      *
-     * <p>The report should include the list of subjects,
-     * recorded grades, calculated average score, and
-     * the corresponding letter grade.</p>
+     * <p>The method prompts the user to enter a student ID, validates the input,
+     * retrieves the corresponding student from the registry, and constructs
+     * a formatted textual report.</p>
      *
-     * @param id the identifier of the student whose report
-     *           should be displayed
+     * <p>The generated report includes:</p>
+     * <ul>
+     *     <li>Student name and ID</li>
+     *     <li>All recorded subjects with numeric grades</li>
+     *     <li>Letter grade for each subject</li>
+     *     <li>Overall average grade</li>
+     *     <li>Letter grade corresponding to the average</li>
+     * </ul>
+     *
+     * <p>If the provided ID is invalid or the student does not exist,
+     * the method returns an empty string.</p>
+     *
+     * @param scanner scanner used to read user input for the student ID
+     * @return a formatted string containing the student's detailed report,
+     * or an empty string if the student cannot be found
      */
-    static void printStudentReport(int id) {
+    static String studentReport(Scanner scanner) {
+        Optional<Integer> idOption = readStudentId(scanner);
 
+        if (idOption.isEmpty()) {
+            return "";
+        }
+
+        int id = idOption.get();
+
+        Optional<Student> found = findStudentById(id);
+        if (found.isEmpty()) {
+            System.out.println("No student with ID " + id);
+            return "";
+        }
+
+        Student student = found.get();
+        String studentName = student.getName();
+        HashMap<String, Double> studentGrades = student.getSubjectGrades();
+        StringBuilder result = new StringBuilder();
+        result.append("Detailed Report For ").append(studentName).append("\n").append("ID: ").append(id).append(" Name: ").append(studentName).append("\n");
+
+        studentGrades.forEach((key, value) -> {
+            result.append(key).append(": ").append(value).append("  ").append(GradeCalculator.getLetterGrade(value)).append("\n");
+        });
+        Double studentAverage = GradeCalculator.calculateAverage(studentGrades);
+        result.append("Average Grade: ").append(studentAverage).append("  ").append(GradeCalculator.getLetterGrade(studentAverage));
+        return result.toString();
     }
-
 }
