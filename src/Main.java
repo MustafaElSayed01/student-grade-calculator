@@ -266,7 +266,7 @@ public class Main {
      * sorted by descending average grade
      */
     static String classReport() {
-        if(studentRegistry.isEmpty()) {
+        if (studentRegistry.isEmpty()) {
             System.out.println("Class is empty");
             return "";
         }
