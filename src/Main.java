@@ -1,6 +1,8 @@
 // TODO: implement saveReportToFile() — write class report to report.txt
 // TODO: implement menu loop — show options, read choice, call correct method
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -284,5 +286,26 @@ public class Main {
         });
 
         return result.toString();
+    }
+
+    /**
+     * Writes the full class academic report to a file.
+     *
+     * <p>The method generates the report by invoking {@link #classReport()}
+     * and writes the resulting formatted string to the specified file using
+     * a {@link java.io.FileWriter}. If the file does not exist, it will be
+     * created; otherwise, its contents will be overwritten.</p>
+     *
+     * <p>If an I/O error occurs during the writing process, the method catches
+     * the exception and prints an error message to the console.</p>
+     *
+     * @param fileName the name or path of the file where the report will be saved
+     */
+    static void saveReportToFile(String fileName) {
+        try (FileWriter fileWriter = new FileWriter(fileName)) {
+            fileWriter.write(classReport());
+        } catch (IOException e) {
+            System.out.println("Something went wrong while writing the report" + e.getMessage());
+        }
     }
 }
