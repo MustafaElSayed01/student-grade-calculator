@@ -1,6 +1,3 @@
-// TODO: implement saveReportToFile() — write class report to report.txt
-// TODO: implement menu loop — show options, read choice, call correct method
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
@@ -18,7 +15,7 @@ public class Main {
     /**
      * Registry containing all students currently stored in the application.
      */
-    private static ArrayList<Student> studentRegistry = new ArrayList<>();
+    private static final ArrayList<Student> studentRegistry = new ArrayList<>();
 
     /**
      * Application entry point.
@@ -29,7 +26,8 @@ public class Main {
      * @param args command-line arguments passed to the program
      */
     public static void main(String[] args) {
-
+        Scanner scanner = new Scanner(System.in);
+        runStudentSystem(scanner);
     }
 
     /**
@@ -305,7 +303,80 @@ public class Main {
         try (FileWriter fileWriter = new FileWriter(fileName)) {
             fileWriter.write(classReport());
         } catch (IOException e) {
-            System.out.println("Something went wrong while writing the report" + e.getMessage());
+            System.out.println("Something went wrong while writing the report: " + e.getMessage());
         }
     }
+
+    /**
+     * Asks the user whether they want another service.
+     *
+     * @param scanner scanner used to read user input
+     * @return {@code true} if the user chooses y,
+     * {@code false} if picked n.
+     */
+    static boolean askForAnotherService(Scanner scanner) {
+
+        while (true) {
+            System.out.print("Another Service? (yes/no): ");
+            String input = scanner.nextLine().trim().toLowerCase();
+
+            switch (input) {
+                case "yes", "y" -> {
+                    return true;
+                }
+                case "no", "n" -> {
+                    return false;
+                }
+                default -> System.out.println("Please type yes (y) or no (n).");
+            }
+        }
+    }
+
+    /**
+     * Runs the interactive console-based student management system.
+     *
+     * <p>The method displays a menu of available operations and continuously
+     * prompts the user to select an option until the user chooses to stop.
+     * Each option triggers a corresponding system action:</p>
+     *
+     * <ul>
+     *     <li>Add a new student</li>
+     *     <li>Record a grade for an existing student</li>
+     *     <li>Generate a detailed report for a specific student</li>
+     *     <li>Generate a report for the entire class</li>
+     *     <li>Export the class report to a text file</li>
+     * </ul>
+     *
+     * <p>User input is read from the provided {@link Scanner}. If an invalid
+     * option is entered, the system prompts the user to choose a valid one.</p>
+     *
+     * @param scanner the scanner used to read user input during the session
+     */
+    static void runStudentSystem(Scanner scanner) {
+        System.out.println("Welcome to Student System!");
+        do {
+            System.out.println("Pick one of the following options:");
+            System.out.println("1. Add Student");
+            System.out.println("2. Add Grade");
+            System.out.println("3. Student Report");
+            System.out.println("4. Class Report");
+            System.out.println("5. Export class report into txt");
+
+            String input = scanner.nextLine().trim().toLowerCase();
+            switch (input) {
+                case "1" -> addStudent(scanner);
+                case "2" -> recordGrade(scanner);
+                case "3" -> System.out.println(studentReport(scanner));
+                case "4" -> System.out.println(classReport());
+                case "5" -> {
+                    System.out.println("Enter the file name:");
+                    String fileName = scanner.nextLine().trim().toLowerCase();
+                    saveReportToFile(fileName);
+                }
+                default -> System.out.println("Please pick a valid option.");
+            }
+        } while (askForAnotherService(scanner));
+        System.out.println("Thanks for using Student System!");
+    }
+
 }
