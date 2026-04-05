@@ -1,12 +1,7 @@
-// TODO: implement showStudentReport() — display one student's grades and average
-// TODO: implement showClassReport() — display all students sorted by average
 // TODO: implement saveReportToFile() — write class report to report.txt
 // TODO: implement menu loop — show options, read choice, call correct method
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Entry point and command controller for the Student Grade Management application.
@@ -197,27 +192,44 @@ public class Main {
     }
 
     /**
-     * Generates a detailed academic report for a specific student.
+     * Builds a detailed academic report for the provided student.
      *
-     * <p>The method prompts the user to enter a student ID, validates the input,
-     * retrieves the corresponding student from the registry, and constructs
-     * a formatted textual report.</p>
+     * <p>The report contains the student's identification information,
+     * all recorded subjects with their numeric grades, the corresponding
+     * letter grades, and the calculated overall average grade with its
+     * letter equivalent.</p>
      *
-     * <p>The generated report includes:</p>
-     * <ul>
-     *     <li>Student name and ID</li>
-     *     <li>All recorded subjects with numeric grades</li>
-     *     <li>Letter grade for each subject</li>
-     *     <li>Overall average grade</li>
-     *     <li>Letter grade corresponding to the average</li>
-     * </ul>
+     * @param student the student whose academic report should be generated
+     * @return a formatted string containing the student's grades and average
+     */
+    static String studentReport(Student student) {
+        int id = student.getId();
+        String studentName = student.getName();
+        HashMap<String, Double> studentGrades = student.getSubjectGrades();
+        StringBuilder result = new StringBuilder();
+        result.append("Detailed Report For ").append(studentName).append("\n").append("ID: ").append(id).append(" Name: ").append(studentName).append("\n");
+
+        studentGrades.forEach((key, value) -> {
+            result.append(key).append(": ").append(value).append("  ").append(GradeCalculator.getLetterGrade(value)).append("\n");
+        });
+        Double studentAverage = GradeCalculator.calculateAverage(studentGrades);
+        result.append("Average Grade: ").append(studentAverage).append("  ").append(GradeCalculator.getLetterGrade(studentAverage));
+        return result.toString();
+    }
+
+    /**
+     * Retrieves a student by prompting for an ID and returns the student's report.
      *
-     * <p>If the provided ID is invalid or the student does not exist,
+     * <p>The method reads a student ID from the provided input source,
+     * validates the value, searches the student registry, and delegates
+     * report generation to {@code studentReport(Student)} if a matching
+     * student is found.</p>
+     *
+     * <p>If the input is invalid or the student does not exist,
      * the method returns an empty string.</p>
      *
-     * @param scanner scanner used to read user input for the student ID
-     * @return a formatted string containing the student's detailed report,
-     * or an empty string if the student cannot be found
+     * @param scanner the input source used to read the student ID
+     * @return the formatted student report, or an empty string if no student is found
      */
     static String studentReport(Scanner scanner) {
         Optional<Integer> idOption = readStudentId(scanner);
@@ -233,18 +245,44 @@ public class Main {
             System.out.println("No student with ID " + id);
             return "";
         }
+        return studentReport(found.get());
+    }
 
-        Student student = found.get();
-        String studentName = student.getName();
-        HashMap<String, Double> studentGrades = student.getSubjectGrades();
+    /**
+     * Generates a complete academic report for all students in the registry.
+     *
+     * <p>The method first sorts the student registry in descending order
+     * based on each student's average grade. The average is calculated
+     * using {@link GradeCalculator#calculateAverage(java.util.HashMap)}.</p>
+     *
+     * <p>After sorting, the method generates an individual detailed report
+     * for every student by invoking {@link #studentReport(Student)} and
+     * appends each report to a single aggregated result.</p>
+     *
+     * <p>The final output contains the detailed report of every student,
+     * ordered from the highest average grade to lowest.</p>
+     *
+     * @return a formatted string containing the reports of all students
+     * sorted by descending average grade
+     */
+    static String classReport() {
+        if(studentRegistry.isEmpty()) {
+            System.out.println("Class is empty");
+            return "";
+        }
+
+        studentRegistry.sort(
+                Comparator.comparingDouble(
+                        (Student s) -> GradeCalculator.calculateAverage(s.getSubjectGrades())
+                ).reversed()
+        );
+
         StringBuilder result = new StringBuilder();
-        result.append("Detailed Report For ").append(studentName).append("\n").append("ID: ").append(id).append(" Name: ").append(studentName).append("\n");
 
-        studentGrades.forEach((key, value) -> {
-            result.append(key).append(": ").append(value).append("  ").append(GradeCalculator.getLetterGrade(value)).append("\n");
+        studentRegistry.forEach(student -> {
+            result.append(studentReport(student));
         });
-        Double studentAverage = GradeCalculator.calculateAverage(studentGrades);
-        result.append("Average Grade: ").append(studentAverage).append("  ").append(GradeCalculator.getLetterGrade(studentAverage));
+
         return result.toString();
     }
 }
