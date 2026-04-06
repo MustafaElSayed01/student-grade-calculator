@@ -96,7 +96,7 @@ public class Main {
                     return id;
                 }
 
-                System.out.println("ID must be a positive number,  Please enter a valid id.");
+                System.out.println("ID must be a positive number,  Please enter a valid ID:");
 
             } catch (NumberFormatException e) {
                 System.out.println("Not a number! Please enter a valid id.");
@@ -164,7 +164,7 @@ public class Main {
     static void recordGrade(Scanner scanner, Student student) {
 
         do {
-            System.out.println("Please Enter Class Name");
+            System.out.println("Please Enter Class Name:");
             String subject = scanner.nextLine();
 
             String formattedSubject = toTitleCase(subject.trim());
@@ -236,7 +236,7 @@ public class Main {
             result.append(key).append(": ").append(value).append("  ").append(GradeCalculator.getLetterGrade(value)).append("\n");
         });
         Double studentAverage = GradeCalculator.calculateAverage(studentGrades);
-        result.append("Average Grade: ").append(studentAverage).append("  ").append(GradeCalculator.getLetterGrade(studentAverage));
+        result.append("Average Grade: ").append(studentAverage).append("  ").append(GradeCalculator.getLetterGrade(studentAverage)).append("\n");
         return result.toString();
     }
 
@@ -304,19 +304,20 @@ public class Main {
     }
 
     /**
-     * Writes the full class academic report to a file.
+     * Writes the generated class report to a text file.
      *
-     * <p>The method generates the report by invoking {@link #classReport()}
-     * and writes the resulting formatted string to the specified file using
-     * a {@link java.io.FileWriter}. If the file does not exist, it will be
-     * created; otherwise, its contents will be overwritten.</p>
+     * <p>If the provided file name does not end with the {@code .txt} extension,
+     * the extension is automatically appended. The method then generates the
+     * complete class report and writes its contents to the specified file.</p>
      *
-     * <p>If an I/O error occurs during the writing process, the method catches
-     * the exception and prints an error message to the console.</p>
+     * <p>If an I/O error occurs during file creation or writing, the method
+     * prints an error message describing the issue.</p>
      *
-     * @param fileName the name or path of the file where the report will be saved
+     * @param fileName the name of the file where the class report will be saved
      */
     static void saveReportToFile(String fileName) {
+        if (!fileName.endsWith(".txt")) fileName += ".txt";
+
         try (FileWriter fileWriter = new FileWriter(fileName)) {
             fileWriter.write(classReport());
         } catch (IOException e) {
