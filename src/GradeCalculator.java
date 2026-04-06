@@ -45,7 +45,7 @@ public class GradeCalculator {
     }
 
     /**
-     * Determines the letter grade corresponding to a numeric average.
+     * Determines the letter grade corresponding to a numeric grade.
      *
      * <p>The grading scale is defined as:</p>
      * <ul>
@@ -56,21 +56,21 @@ public class GradeCalculator {
      *   <li>F: below 60</li>
      * </ul>
      *
-     * @param average the numeric average grade
+     * @param grade the numeric grade
      * @return the corresponding letter grade
      */
-    public static char getLetterGrade(double average) {
+    public static char getLetterGrade(double grade) {
 
-        if (average >= 90) {
+        if (grade >= 90) {
             return 'A';
 
-        } else if (average >= 80) {
+        } else if (grade >= 80) {
             return 'B';
 
-        } else if (average >= 70) {
+        } else if (grade >= 70) {
             return 'C';
 
-        } else if (average >= 60) {
+        } else if (grade >= 60) {
             return 'D';
 
         } else {
