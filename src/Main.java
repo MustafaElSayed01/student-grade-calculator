@@ -80,51 +80,51 @@ public class Main {
     /**
      * Reads and validates a student identifier from user input.
      *
-     * <p>The method attempts to parse the entered value into a positive integer.
-     * Invalid inputs result in an empty Optional.</p>
+     * <p>The method attempts to parse the entered value into a positive integer. </p>
      *
      * @param scanner scanner used to read console input
-     * @return an Optional containing the valid student ID,
-     * or an empty Optional if the input is invalid
+     * @return valid student ID,
      */
-    static Optional<Integer> readStudentId(Scanner scanner) {
-        System.out.println("Please Enter Student ID:");
-        String idInput = scanner.nextLine();
+    static int readStudentId(Scanner scanner) {
+        while (true) {
+            System.out.println("Please Enter Student ID:");
+            String idInput = scanner.nextLine();
+            try {
+                int id = Integer.parseInt(idInput);
 
-        try {
-            int id = Integer.parseInt(idInput);
+                if (isPositiveId(id)) {
+                    return id;
+                }
 
-            if (!isPositiveId(id)) {
-                System.out.println("ID must be a positive number.");
-                return Optional.empty();
+                System.out.println("ID must be a positive number,  Please enter a valid id.");
+
+            } catch (NumberFormatException e) {
+                System.out.println("Not a number! Please enter a valid id.");
             }
-
-            return Optional.of(id);
-
-        } catch (NumberFormatException e) {
-            System.out.println("Not a number! Please enter a valid id.");
-            return Optional.empty();
         }
     }
 
     /**
-     * Registers a new student in the system.
+     * Registers a new student in the system and optionally records their grades.
      *
-     * <p>The method reads a student ID and name from the user,
-     * validates the information, and stores the new student
-     * in the registry if the identifier is unique.</p>
+     * <p>The method prompts the user to enter a student ID and checks whether
+     * a student with the same ID already exists in the registry. If the ID is
+     * already assigned, the operation terminates and a message is displayed.</p>
      *
-     * @param scanner scanner used to read user input
+     * <p>For a unique ID, the user is prompted to enter the student's name.
+     * The name is normalized to title case before creating the student record.
+     * The new student is then added to the student registry.</p>
+     *
+     * <p>After successful registration, the method immediately invokes
+     * {@link #recordGrade(Scanner, Student)} to allow entering one or more
+     * subject grades for the newly created student.</p>
+     *
+     * @param scanner scanner used to read user input for the student ID
+     *                and student name
      */
     static void addStudent(Scanner scanner) {
 
-        Optional<Integer> idOption = readStudentId(scanner);
-
-        if (idOption.isEmpty()) {
-            return;
-        }
-
-        int id = idOption.get();
+        int id = readStudentId(scanner);
 
         Optional<Student> found = findStudentById(id);
 
@@ -132,7 +132,6 @@ public class Main {
             System.out.println("Student with ID " + id + " already exists.");
             return;
         }
-
         System.out.println("Please Enter Student Name:");
         String name = scanner.nextLine();
 
@@ -141,26 +140,68 @@ public class Main {
         Student student = new Student(id, formattedName);
 
         studentRegistry.add(student);
+        recordGrade(scanner, student);
     }
 
     /**
-     * Records a grade for a specific student and subject.
+     * Records one or more subject grades for the specified student.
      *
-     * <p>The method retrieves the student by identifier, prompts for
-     * a subject name and numeric grade, and stores the grade in the
-     * student's grade record.</p>
+     * <p>The method repeatedly prompts the user to enter a subject name and
+     * its corresponding numeric grade. The subject name is normalized to
+     * title case before being stored.</p>
+     *
+     * <p>Grade input is validated to ensure it is numeric and conforms to
+     * the constraints enforced by the student grade registration logic.
+     * If invalid input is provided, the user is prompted again until a
+     * valid grade is entered.</p>
+     *
+     * <p>After successfully recording a grade, the user is asked whether
+     * they want to add another grade for the same student.</p>
+     *
+     * @param scanner scanner used to read user input
+     * @param student the student whose grades will be updated
+     */
+    static void recordGrade(Scanner scanner, Student student) {
+
+        do {
+            System.out.println("Please Enter Class Name");
+            String subject = scanner.nextLine();
+
+            String formattedSubject = toTitleCase(subject.trim());
+            while (true) {
+                System.out.println("Enter Class Grade:");
+                String grade = scanner.nextLine();
+
+                try {
+                    double gradeValue = Double.parseDouble(grade);
+                    student.addGrade(formattedSubject, gradeValue);
+                    break;
+                } catch (NumberFormatException e) {
+                    System.out.println("Not a number! Please enter a valid grade.");
+
+                } catch (IllegalArgumentException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+        }
+        while (askForAnotherService(scanner, "Add another grade for this student?"));
+    }
+
+    /**
+     * Records grades for a student selected by ID.
+     *
+     * <p>The method prompts the user to enter a student ID, attempts to locate
+     * the corresponding student in the registry, and if found delegates the
+     * grade recording process to {@link #recordGrade(Scanner, Student)}.</p>
+     *
+     * <p>If no student exists with the provided ID, the method prints a message
+     * and terminates without recording any grades.</p>
      *
      * @param scanner scanner used to read user input
      */
     static void recordGrade(Scanner scanner) {
 
-        Optional<Integer> idOption = readStudentId(scanner);
-
-        if (idOption.isEmpty()) {
-            return;
-        }
-
-        int id = idOption.get();
+        int id = readStudentId(scanner);
 
         Optional<Student> found = findStudentById(id);
 
@@ -170,25 +211,7 @@ public class Main {
         }
 
         Student student = found.get();
-
-        System.out.println("Please Enter Class Name");
-        String subject = scanner.nextLine();
-
-        String formattedSubject = toTitleCase(subject.trim());
-
-        System.out.println("Please Enter Grade:");
-        String grade = scanner.nextLine();
-
-        try {
-            double gradeValue = Double.parseDouble(grade);
-            student.addGrade(formattedSubject, gradeValue);
-
-        } catch (NumberFormatException e) {
-            System.out.println("Not a number! Please enter a valid grade.");
-
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
-        }
+        recordGrade(scanner, student);
     }
 
     /**
@@ -232,13 +255,7 @@ public class Main {
      * @return the formatted student report, or an empty string if no student is found
      */
     static String studentReport(Scanner scanner) {
-        Optional<Integer> idOption = readStudentId(scanner);
-
-        if (idOption.isEmpty()) {
-            return "";
-        }
-
-        int id = idOption.get();
+        int id = readStudentId(scanner);
 
         Optional<Student> found = findStudentById(id);
         if (found.isEmpty()) {
@@ -308,16 +325,36 @@ public class Main {
     }
 
     /**
-     * Asks the user whether they want another service.
+     * Prompts the user to decide whether to continue using the system.
+     *
+     * <p>This is a convenience overload that displays a default prompt message
+     * and delegates the input handling to {@link #askForAnotherService(Scanner, String)}.</p>
      *
      * @param scanner scanner used to read user input
-     * @return {@code true} if the user chooses y,
-     * {@code false} if picked n.
+     * @return {@code true} if the user confirms continuation ({@code yes}/{@code y}),
+     * {@code false} if the user declines ({@code no}/{@code n})
      */
     static boolean askForAnotherService(Scanner scanner) {
+        return askForAnotherService(scanner, "Another Service");
+    }
+
+    /**
+     * Prompts the user with a custom message asking whether to continue.
+     *
+     * <p>The method repeatedly requests input until a valid response is provided.
+     * Accepted affirmative responses are {@code "yes"} and {@code "y"}, while
+     * negative responses are {@code "no"} and {@code "n"}. The comparison is
+     * performed in a case-insensitive manner after trimming whitespace.</p>
+     *
+     * @param scanner scanner used to read user input
+     * @param message prompt message displayed to the user before requesting input
+     * @return {@code true} if the user confirms continuation ({@code yes}/{@code y}),
+     * {@code false} if the user declines ({@code no}/{@code n})
+     */
+    static boolean askForAnotherService(Scanner scanner, String message) {
 
         while (true) {
-            System.out.print("Another Service? (yes/no): ");
+            System.out.printf("%s (yes/no): ", message);
             String input = scanner.nextLine().trim().toLowerCase();
 
             switch (input) {
