@@ -168,6 +168,11 @@ public class Main {
             String subject = scanner.nextLine();
 
             String formattedSubject = toTitleCase(subject.trim());
+
+            if (student.getSubjectGrades().containsKey(formattedSubject)) {
+                System.out.println(formattedSubject + " already exists. Grade will be updated.");
+            }
+
             while (true) {
                 System.out.println("Enter Class Grade:");
                 String grade = scanner.nextLine();
@@ -287,18 +292,20 @@ public class Main {
             System.out.println("Class is empty");
             return "";
         }
-
-        studentRegistry.sort(
-                Comparator.comparingDouble(
-                        (Student s) -> GradeCalculator.calculateAverage(s.getSubjectGrades())
-                ).reversed()
-        );
-
+        List<Student> sorted = new ArrayList<>(studentRegistry);
         StringBuilder result = new StringBuilder();
 
-        studentRegistry.forEach(student -> {
+        sorted.sort(Comparator.comparingDouble(
+                (Student s) -> GradeCalculator.calculateAverage(s.getSubjectGrades())
+        ).reversed());
+
+        sorted.forEach(student -> {
             result.append(studentReport(student));
         });
+
+        double classAverage = GradeCalculator.calculateClassAverage(studentRegistry);
+        result.append("Class Average: ").append(classAverage)
+                .append("  ").append(GradeCalculator.getLetterGrade(classAverage)).append("\n");
 
         return result.toString();
     }

@@ -16,19 +16,19 @@ public class Student {
     /**
      * Unique identifier assigned to the student.
      */
-    private int id;
+    private final int id;
 
     /**
      * The student's full name.
      */
-    private String name;
+    private final String name;
 
     /**
      * Stores the student's grades per subject.
      * The key represents the subject name and the value
      * represents the grade (0–100).
      */
-    private HashMap<String, Double> subjectGrades;
+    private final HashMap<String, Double> subjectGrades = new  HashMap<>();
 
     /**
      * Constructs a new Student with the given name and ID.
@@ -40,7 +40,6 @@ public class Student {
     public Student(int id, String name) {
         this.id = id;
         this.name = name;
-        subjectGrades = new HashMap<>();
     }
 
     /**
