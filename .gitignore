@@ -32,4 +32,4 @@ bin/
 *.iml
 .idea/
 *.class
-report.txt
+*.txt
