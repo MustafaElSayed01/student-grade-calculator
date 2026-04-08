@@ -83,7 +83,7 @@ public class Main {
      * <p>The method attempts to parse the entered value into a positive integer. </p>
      *
      * @param scanner scanner used to read console input
-     * @return valid student ID,
+     * @return a valid positive student ID entered by the user
      */
     static int readStudentId(Scanner scanner) {
         while (true) {
@@ -282,7 +282,7 @@ public class Main {
      * appends each report to a single aggregated result.</p>
      *
      * <p>The final output contains the detailed report of every student,
-     * ordered from the highest average grade to lowest.</p>
+     * the whole class averages ordered from the highest average grade to lowest.</p>
      *
      * @return a formatted string containing the reports of all students
      * sorted by descending average grade
